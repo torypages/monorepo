@@ -1,0 +1,75 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    ports:
+      - 127.0.0.1:7665:7665
+    volumes:
+      - ./src:/app/src
+    env_file:
+      - path: .env
+        required: true
+      - path: .docker.env
+        required: true
+    depends_on:
+      database:
+        condition: service_healthy
+      celery-broker:
+        condition: service_healthy
+
+  celery_worker:
+    env_file:
+      - path: .env
+        required: true
+      - path: .docker.env
+        required: true
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      celery-broker:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: worker
+
+  database:
+    image: mysql:8.4.0
+    ports:
+      - 127.0.0.1:7664:3306
+    # env_file:
+    #   - path: .env
+    #     required: true
+    #   - path: .docker.env
+    #     required: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=${database_password}
+      - MYSQL_DATABASE=${database_name}
+      # - MYSQL_USER=${database_user}
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+
+
+  celery-broker:
+    image: rabbitmq:3.13.3-management
+    ports:
+      - 127.0.0.1:7663:5672
+    env_file:
+      - path: .env
+        required: true
+      - path: .docker.env
+        required: true
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 30s
+      timeout: 30s
+      retries: 10
+    environment:
+      - RABBITMQ_DEFAULT_USER=${celery_broker_user}
+      - RABBITMQ_DEFAULT_PASS=${celery_broker_password}
+      - RABBITMQ_DEFAULT_VHOST=${celery_broker_vhost}

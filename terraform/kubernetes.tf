@@ -2,132 +2,62 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
-resource "kubernetes_deployment" "nginx" {
-  metadata {
-    name = "scalable-nginx-example"
-    labels = {
-      App = "ScalableNginxExample"
-    }
-  }
+module "project1-be-app" {
+  source      = "./modules/project1-be/app"
+  environment = var.environment
+}
 
-  spec {
-    replicas = 2
-    selector {
-      match_labels = {
-        App = "ScalableNginxExample"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          App = "ScalableNginxExample"
-        }
-      }
-      spec {
-        container {
-          image = "nginx:latest"
-          name  = "example"
+module "project1-be-database" {
+  source      = "./modules/project1-be/database"
+  environment = var.environment
+}
 
-          port {
-            container_port = 80
-          }
+module "project1-be-broker" {
+  source      = "./modules/project1-be/broker"
+  environment = var.environment
+}
 
-          resources {
-            limits = {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
-            requests = {
-              cpu    = "250m"
-              memory = "50Mi"
-            }
-          }
-        }
-      }
-    }
-  }
+module "project1-be-worker" {
+  source      = "./modules/project1-be/worker"
+  environment = var.environment
 }
 
 
-resource "kubernetes_service" "nginx" {
+resource "kubernetes_ingress_v1" "example_ingress" {
   metadata {
-    name = "nginx-example"
-  }
-  spec {
-    selector = {
-      App = kubernetes_deployment.nginx.spec.0.template.0.metadata[0].labels.App
-    }
-    port {
-      node_port   = 30201
-      port        = 80
-      target_port = 80
-    }
-
-    type = "NodePort"
-  }
-}
-
-resource "kubernetes_deployment" "project1-be" {
-  metadata {
-    name = "project1-be"
-    labels = {
-      App = "Project1Be"
-    }
+    name = format("%s-ingress", var.environment)
   }
 
   spec {
-    replicas = 2
-    selector {
-      match_labels = {
-        App = "Project1Be"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          App = "Project1Be"
-        }
-      }
-      spec {
-        container {
-          image = "localhost:5000/project1-be/1"
-          name  = "project1-ve"
-
-          port {
-            container_port = 80
-          }
-
-          resources {
-            limits = {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
-            requests = {
-              cpu    = "250m"
-              memory = "50Mi"
-            }
-          }
+    default_backend {
+      service {
+        name = format("%s-project1-be-app", var.environment)
+        port {
+          number = 7665
         }
       }
     }
-  }
-}
 
+    rule {
+      host = format("%s.party.central", var.environment)
+      http {
+        path {
+          backend {
+            service {
+              name = format("%s-project1-be-app", var.environment)
+              port {
+                number = 7665
+              }
+            }
+          }
 
-resource "kubernetes_service" "project1-be" {
-  metadata {
-    name = "project1-be"
-  }
-  spec {
-    selector = {
-      App = kubernetes_deployment.project1-be.spec.0.template.0.metadata[0].labels.App
+          path = "/*"
+        }
+      }
     }
-    port {
-      # node_port   = 30201
-      port        = 80
-      target_port = 80
-    }
 
-    type = "NodePort"
+    # tls {
+    #   secret_name = "tls-secret"
+    # }
   }
 }

@@ -1,3 +1,9 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
 """
 Django settings for project1_be project.
 
@@ -25,19 +31,31 @@ SECRET_KEY = "django-insecure-$l+m9-uw!%6w_r9#pegi&u7t=0mznwadmx!v+89ui4q+#nheus
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
+THIRD_PARTY_APPS = [
+    "django_extensions",
 ]
+
+ADDITIONAL_APPS = ["app1"]
+
+INSTALLED_APPS = (
+    [
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
+        "rest_framework",
+    ]
+    + ADDITIONAL_APPS
+    + THIRD_PARTY_APPS
+)
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -75,11 +93,14 @@ WSGI_APPLICATION = "project1_be.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ["database_name"],
+        "USER": os.environ["database_user"],
+        "PASSWORD": os.environ["database_password"],
+        "PORT": os.environ["database_port"],
+        "HOST": os.environ["database_host"],
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
