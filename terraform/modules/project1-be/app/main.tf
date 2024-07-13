@@ -2,7 +2,7 @@ resource "kubernetes_deployment" "app" {
   metadata {
     name = format("%s-project1-be-app", var.environment)
     labels = {
-      App = "Project1Be"
+      App = format("%s-project1-be-app", var.environment)
     }
   }
 
@@ -10,19 +10,19 @@ resource "kubernetes_deployment" "app" {
     replicas = 2
     selector {
       match_labels = {
-        App = "Project1Be"
+        App = format("%s-project1-be-app", var.environment)
       }
     }
     template {
       metadata {
         labels = {
-          App = "Project1Be"
+          App = format("%s-project1-be-app", var.environment)
         }
       }
       spec {
         container {
-          image = "localhost:5000/project1-be/12"
-          name  = "project1-be"
+          image = "localhost:5000/project1-be-app/version/1"
+          name  = format("%s-project1-be-app", var.environment)
 
           port {
             container_port = 80

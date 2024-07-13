@@ -2,7 +2,7 @@ resource "kubernetes_deployment" "database" {
   metadata {
     name = format("%s-project1-be-database", var.environment)
     labels = {
-      App = "Project1BeDatabase"
+      App = format("%s-project1-be-database", var.environment)
     }
   }
 
@@ -10,13 +10,13 @@ resource "kubernetes_deployment" "database" {
     replicas = 1
     selector {
       match_labels = {
-        App = "Project1BeDatabase"
+        App = format("%s-project1-be-database", var.environment)
       }
     }
     template {
       metadata {
         labels = {
-          App = "Project1BeDatabase"
+          App = format("%s-project1-be-database", var.environment)
         }
       }
       spec {
@@ -42,11 +42,11 @@ resource "kubernetes_deployment" "database" {
           resources {
             limits = {
               cpu    = "0.5"
-              memory = "512Mi"
+              memory = "1024Mi"
             }
             requests = {
               cpu    = "250m"
-              memory = "50Mi"
+              memory = "1024Mi"
             }
           }
         }

@@ -1,3 +1,7 @@
+# TODO
+- version numbers of images in tasks.py
+
+
 # Installing
 
 ## Perquisites

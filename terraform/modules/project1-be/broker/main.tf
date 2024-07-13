@@ -2,7 +2,7 @@ resource "kubernetes_deployment" "project1-be-broker" {
   metadata {
     name = format("%s-project1-be-broker", var.environment)
     labels = {
-      App = "Project1BeBroker"
+      App = format("%s-project1-be-broker", var.environment)
     }
   }
 
@@ -10,19 +10,19 @@ resource "kubernetes_deployment" "project1-be-broker" {
     replicas = 1
     selector {
       match_labels = {
-        App = "Project1BeBroker"
+        App = format("%s-project1-be-broker", var.environment)
       }
     }
     template {
       metadata {
         labels = {
-          App = "Project1BeBroker"
+          App = format("%s-project1-be-broker", var.environment)
         }
       }
       spec {
         container {
           image = "rabbitmq:3.13.3-management"
-          name  = "project1-be-broker"
+          name  = format("%s-project1-be-broker", var.environment)
 
           port {
             container_port = 5672
