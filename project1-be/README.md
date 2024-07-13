@@ -10,7 +10,11 @@
 - The default running setup of the app is locally without docker, so for example, `.env` describes the local setup. This isn't because local is recommended or better, it's just that, it's literally the default, docker is something on top of local
 - .docker.env gets combined with .env and supercedes .env
 - MySQL and Django were chosen because my workplace uses those. I'd personally use FastAPI and Django, assuming I'd use Python at all, but that's a whole other thing.
+- I don't even think I'd use Celery as a way of running async tasks.
 - There is one settings.py file, and should only ever by one. Environment variables are used for distinguishing environments.
+- Migrations are run as the app starts. I believe when K8 is scaled to more than 1 this should all just magically work because of DB locking n such.
+- In real life the DB would be using a managed service like RDS, I would not self host a db in a docker container like this.
+- Poetry because it works, it's popular, it's easy. Though it's my understanding that it actually isn't the ideal option anymore. Anyway, I didn't want to get hung up on this detail.
 
 # Installing
 
