@@ -31,9 +31,15 @@
 Start Minikube, and tunnels with required addons etc.
 ```
 cd terraform/
-source ./venc/bin/activate
+poetry shell
 inv minikube.start
 ```
+
+instead of poetry shell I personally use 
+```
+ source ./venc/bin/activate
+```
+because I have Poetry configured to create the env in the project folder and sourcing the env with Poetry shell mucks with my Neovim config
 
 In another terminal, build and push images from apps/projects, e.x.:
 ```
