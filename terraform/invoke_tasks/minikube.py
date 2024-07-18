@@ -1,4 +1,5 @@
 import concurrent.futures
+import getpass
 import threading
 from subprocess import Popen
 
@@ -21,20 +22,21 @@ def start_dashboard(c):
 
 
 @task
-def start_tunnel(c):
+def start_tunnel(c, sudo_pass):
     print("starting tunnel")
-    c.sudo("minikube tunnel", pty=True)
+    c.run("echo {} | sudo -S minikube tunnel".format(sudo_pass), pty=True)
 
 
 @task
 def start(c):
+    sudo_password = getpass.getpass("Enter your sudo password: ")
     c.run('minikube start --insecure-registry "10.0.0.0/24" --memory 20000')
     c.run("minikube addons enable registry")
     c.run("minikube addons enable ingress")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_repo_tunnel = executor.submit(start_repository_tunnel, c)
         future_dashboard = executor.submit(start_dashboard, c)
-        future_tunnel = executor.submit(start_tunnel, c)
+        future_tunnel = executor.submit(start_tunnel, c, sudo_pass)
 
         # Wait for all tasks to complete
         concurrent.futures.wait([future_repo_tunnel, future_dashboard, future_tunnel])

@@ -5,6 +5,7 @@ provider "kubernetes" {
 module "project1-be-app" {
   source      = "./modules/project1-be/app"
   environment = var.environment
+  docker_tag  = var.docker_tag
 }
 
 module "project1-be-database" {
@@ -20,6 +21,7 @@ module "project1-be-broker" {
 module "project1-be-worker" {
   source      = "./modules/project1-be/worker"
   environment = var.environment
+  docker_tag  = var.docker_tag
 }
 
 

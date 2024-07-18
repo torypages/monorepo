@@ -21,7 +21,7 @@ resource "kubernetes_deployment" "worker" {
       }
       spec {
         container {
-          image = "localhost:5000/project1-be-worker/version/1"
+          image = format("localhost:5000/project1-be-worker/%s", var.docker_tag)
           name  = format("%s-project1-be-worker", var.environment)
 
           port {
@@ -81,6 +81,11 @@ resource "kubernetes_deployment" "worker" {
           env {
             name  = "database_port"
             value = "3306"
+          }
+
+          env {
+            name  = "docker_tag"
+            value = var.docker_tag
           }
 
 
